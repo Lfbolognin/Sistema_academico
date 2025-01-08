@@ -1,4 +1,5 @@
-from filtro import filtro_professor_disciplina
+#############FAZ OS CADASTROS ####################
+
 def cadastrar_aluno(lista_alunos):
     nome = input("Digite o nome do aluno: ")
     matricula = input("Digite a matricula do aluno: ")
@@ -59,13 +60,31 @@ def cadastrar_disciplina(lista_disciplina):
     lista_disciplina.append(disciplina)
     print("Disciplina cadastrada com sucesso!")
 
-def cadastrar_turma(lista_turma):
+def cadastrar_turma(lista_turma, lista_alunos):
     nome = input("Digite o nome da turma: ")
     codigo = input("Digite o codigo da turma: ")
     disciplina = input("Digite o nome da disciplina: ")
     professor = input("Digite o nome do professor: ")
     alunos = input("Digite os alunos dessa turma: ")
     
+ # Cadastro dos alunos na turma
+    alunos_turma = []
+    while True:
+        matricula_aluno = input("Digite a matrícula de um aluno para adicionar à turma (ou 'fim' para encerrar): ")
+        if matricula_aluno.lower() == 'fim':
+            break
+
+        # Verificar se o aluno está cadastrado
+        aluno_encontrado = False
+        for aluno in lista_alunos:
+            if aluno['matricula'] == matricula_aluno:
+                alunos_turma.append(aluno)
+                aluno_encontrado = True
+                print(f"Aluno {aluno['nome']} adicionado à turma.")
+                break
+
+        if not aluno_encontrado:
+            print("Aluno não encontrado. Tente novamente ou digite 'fim' para encerrar.")
 
     turma = {
         "nome": nome,
@@ -77,6 +96,9 @@ def cadastrar_turma(lista_turma):
     }
     lista_turma.append(turma)
     print("Turma cadastrada com sucesso!")
+############################################################
+
+######################FAZ A LISTAGEM DOS DADOS######################
 
 def listar_alunos(lista_alunos):
     if not lista_alunos:
@@ -112,7 +134,57 @@ def listar_disciplina(lista_disciplina):
     
     print("\nLista de Disciplinas cadastradas:")
     for idx, disciplina in enumerate(lista_disciplina, start=1):
-        print(f"Nome: {disciplina['nome']}, Codigo: {disciplina['codigo']}, Carga Hora: {disciplina['carga_hr']}, Professor: {disciplina['professor']}")
+        print(f"Nome: {disciplina['nome']}, Codigo: {disciplina['codigo']}, Carga Hora: {disciplina['carga_hr']}, Professor: {disciplina['disciplina']}")
+#######################################################################################
+
+#############EFETUA AS FILTRAGENS ####################
+
+def filtro_professor_disciplina(lista_professores):
+    if not lista_professores:
+        print("Esse professor não está cadastrado")
+        return
+    
+    disciplica_consultada = input("Digite o nome da disciplina para filtrar os professores: ")
+
+    professores_filtrados = [
+         professor for professor in lista_professores if professor['disciplina'].lower() == disciplica_consultada.lower()
+
+    ]
+
+
+    if professores_filtrados:
+        print(f"\nProfessores que ensinam a disciplina '{disciplica_consultada}':")
+        for professor in professores_filtrados:
+            print(f"Nome: {professor['nome']}, Matricula: {professor['matricula']}, E-mail: {professor['email']}")
+    else:
+        print(f"Nenhum professor encontrado para a disciplina '{disciplica_consultada}'.")
+
+def disciplinas_por_professor(lista_professores):
+    if not lista_professores:
+        print("Nenhum professor cadastrado.")
+        return
+
+    nome_professor = input("Digite o nome do professor para ver as disciplinas alocadas: ")
+
+    # Procurando o professor na lista
+    professor_encontrado = None
+    for professor in lista_professores:
+        if professor['nome'].lower() == nome_professor.lower():
+            professor_encontrado = professor
+            break
+
+    if professor_encontrado:
+        print(f"\nDisciplinas alocadas ao professor {nome_professor}:")
+        if 'disciplina' in professor_encontrado:
+            print(professor_encontrado['disciplina'])
+        else:
+            print(f"O professor {nome_professor} não tem disciplinas alocadas.")
+    else:
+        print(f"Professor {nome_professor} não encontrado.")
+
+########################################################################################################################
+
+##MENUS ESPECIFICOS##
 
 def cadastros (lista_alunos, lista_professores, lista_disciplina, lista_turma):
     while True:
@@ -160,6 +232,28 @@ def listagens(lista_alunos, lista_professores, lista_disciplina, lista_turmas):
         else:
             print("Opção inválida. Tente novamente.")
 
+def filtros(lista_alunos, lista_professores, lista_disciplina, lista_turmas):
+    while True:
+        print("\nMenu de consultas:")
+        print("1. Consulta de professor x disciplina")
+        print("2. Listar disciplinas atribuidas a algum professor")
+        print("3. Listar Disciplinas")
+        print("4. Listar Turmas")
+        print("5. Voltar")
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == "1":
+            filtro_professor_disciplina(lista_professores)
+        elif opcao == "2":  # A opção 5 será a nova funcionalidade
+            disciplinas_por_professor(lista_professores)
+        elif opcao == "5":
+            break
+        else:
+            print("Opção inválida. Tente novamente.")
+
+########################################################################################################################
+
+##MENUS GERAL##
 
 def menu():
     lista_alunos = []
@@ -179,14 +273,12 @@ def menu():
             cadastros(lista_alunos, lista_professores, lista_disciplina, lista_turma)
         elif opcao == "2":
             listagens(lista_alunos, lista_professores, lista_disciplina, lista_turma)
-
-        elif opcao == 3:
-            filtro_professor_disciplina(lista_professores)
+        elif opcao == "3":
+            filtros(lista_alunos, lista_professores, lista_disciplina, lista_turma)
         elif opcao == "4":
             print("Saindo do sistema...")
             break
         else:
             print("Opção inválida. Tente novamente.")
-
-
+############################################################################################################################################
 menu()
